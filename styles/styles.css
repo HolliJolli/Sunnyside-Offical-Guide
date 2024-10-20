@@ -1,0 +1,139 @@
+/* Global Styles */
+html,
+body {
+  height: 100%;
+  margin: 0;
+  font-family: "Arial", sans-serif;
+  color: #333;
+  background-color: #f9f9f9; /* Light background for contrast */
+}
+
+/* Flexbox for Layout */
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+header {
+  background: #ffcc00; /* Yellow background */
+  padding: 15px 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Navigation */
+nav ul {
+  list-style-type: none;
+  padding: 0;
+  text-align: center;
+}
+
+nav ul li {
+  display: inline-block;
+  margin: 0 20px; /* Increased spacing for a cleaner look */
+}
+
+nav a {
+  color: #333;
+  text-decoration: none;
+  font-weight: bold;
+  padding: 10px 15px;
+  border-radius: 5px;
+  transition: background 0.3s, color 0.3s; /* Smooth transition */
+}
+
+nav a:hover {
+  background: #ffe57f; /* Light yellow hover effect */
+  color: #000; /* Darker text on hover for contrast */
+}
+
+/* Main Content */
+main {
+  flex: 1;
+  max-width: 1000px; /* Increase max width for the main content */
+  margin: 20px auto;
+  padding: 40px; /* Increased padding for more space */
+  background: #fff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Enhanced shadow for depth */
+  border-radius: 8px; /* Softer corners */
+}
+
+/* Headings */
+h1,
+h2 {
+  color: #ffcc00; /* Yellow for headings */
+  margin-bottom: 15px;
+  padding-bottom: 5px; /* Add space below the heading */
+  border-bottom: 2px solid #ffe57f; /* Underline effect for headings */
+}
+
+h3 {
+  color: #ffcc00; /* Yellow for subheadings */
+  margin-top: 20px; /* Space above subheadings */
+  border-bottom: 1px solid #ffe57f; /* Underline for subheadings */
+  padding-bottom: 5px;
+}
+
+/* Checklist Section */
+section {
+  background-color: #fff; /* White background for checklist section */
+  border: 2px solid #ffcc00; /* Yellow border around the checklist */
+  border-radius: 8px; /* Softer corners */
+  padding: 20px; /* Padding for space */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Light shadow for depth */
+}
+
+.checklist ul {
+  list-style-type: none; /* Remove default list styling */
+  padding: 0; /* Remove padding */
+}
+
+.checklist li {
+  margin: 15px 0; /* Increased margin for better spacing */
+  position: relative; /* Position for pseudo-element */
+  padding-left: 25px; /* Space for custom checkbox */
+  font-size: 1.1em; /* Slightly larger font for checklist items */
+}
+
+.checklist li input[type="checkbox"] {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px; /* Size of the checkbox */
+  height: 20px; /* Size of the checkbox */
+}
+
+/* Script Section */
+.script pre {
+  background-color: #fff8cc; /* Light yellow background for code */
+  border: 1px solid #ffcc00; /* Yellow border */
+  border-radius: 5px;
+  padding: 20px; /* Increased padding for better space */
+  overflow-x: auto;
+  white-space: pre-wrap;
+  font-family: "Courier New", monospace; /* Monospace font for code */
+  margin: 20px 0; /* Add margin for spacing */
+}
+
+/* Footer */
+footer {
+  text-align: center;
+  padding: 20px 0;
+  background: #ffcc00; /* Yellow background */
+  color: #333;
+  width: 100%;
+  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1); /* Shadow for separation */
+}
+
+/* Responsive Styles */
+@media (max-width: 600px) {
+  nav ul li {
+    display: block;
+    margin: 10px 0;
+  }
+
+  main {
+    padding: 20px;
+  }
+}
