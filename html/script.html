@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Linux Ubuntu Script</title>
+    <title>Windows 10 Script</title>
     <link rel="stylesheet" href="../styles/styles.css" />
   </head>
   <body>
@@ -27,12 +27,72 @@
       </nav>
 
       <section class="script">
-        <!-- Include Linux script here -->
+        <h2>Windows 10 PowerShell Script</h2>
         <pre>
-# Sample Script for Linux Ubuntu
-#!/bin/bash
-echo "Disabling unnecessary services..."
-# Add more script content here
+# PowerShell Script for Windows 10 Security Checklist
+
+# Set Password Policy
+secedit /export /cfg C:\SecurityPolicy.inf
+((Get-Content -path C:\SecurityPolicy.inf) -replace "PasswordHistorySize.*", "PasswordHistorySize = 24") |
+    Set-Content C:\SecurityPolicy.inf
+((Get-Content -path C:\SecurityPolicy.inf) -replace "MaximumPasswordAge.*", "MaximumPasswordAge = 60") |
+    Set-Content C:\SecurityPolicy.inf
+((Get-Content -path C:\SecurityPolicy.inf) -replace "MinimumPasswordAge.*", "MinimumPasswordAge = 1") |
+    Set-Content C:\SecurityPolicy.inf
+((Get-Content -path C:\SecurityPolicy.inf) -replace "MinimumPasswordLength.*", "MinimumPasswordLength = 10") |
+    Set-Content C:\SecurityPolicy.inf
+((Get-Content -path C:\SecurityPolicy.inf) -replace "PasswordComplexity.*", "PasswordComplexity = 1") |
+    Set-Content C:\SecurityPolicy.inf
+((Get-Content -path C:\SecurityPolicy.inf) -replace "ClearTextPassword.*", "ClearTextPassword = 0") |
+    Set-Content C:\SecurityPolicy.inf
+secedit /configure /db secedit.sdb /cfg C:\SecurityPolicy.inf /overwrite
+Remove-Item C:\SecurityPolicy.inf
+
+# Set Account Lockout Policy
+secedit /export /cfg C:\SecurityPolicy.inf
+((Get-Content -path C:\SecurityPolicy.inf) -replace "LockoutDuration.*", "LockoutDuration = 30") |
+    Set-Content C:\SecurityPolicy.inf
+((Get-Content -path C:\SecurityPolicy.inf) -replace "LockoutBadCount.*", "LockoutBadCount = 10") |
+    Set-Content C:\SecurityPolicy.inf
+((Get-Content -path C:\SecurityPolicy.inf) -replace "ResetLockoutCount.*", "ResetLockoutCount = 30") |
+    Set-Content C:\SecurityPolicy.inf
+secedit /configure /db secedit.sdb /cfg C:\SecurityPolicy.inf /overwrite
+Remove-Item C:\SecurityPolicy.inf
+
+# Enable Windows Defender
+Set-MpPreference -DisableRealtimeMonitoring $false
+
+# Disable IPv6 on all network adapters
+Get-NetAdapterBinding -ComponentID ms_tcpip6 | Disable-NetAdapterBinding -Confirm:$false
+
+# Set User Account Control (UAC) to maximum
+Set-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\System" -Name "EnableLUA" -Value 1
+Set-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\System" -Name "ConsentPromptBehaviorAdmin" -Value 2
+
+# Disable SMBv1
+Disable-WindowsOptionalFeature -Online -FeatureName SMB1Protocol -NoRestart
+
+# Set Audit Policy for Success and Failure
+auditpol /set /subcategory:"Logon" /success:enable /failure:enable
+auditpol /set /subcategory:"Account Lockout" /success:enable /failure:enable
+auditpol /set /subcategory:"Policy Change" /success:enable /failure:enable
+
+# Configure firewall rules to disable specific inbound connections
+New-NetFirewallRule -DisplayName "Disable MS Edge Inbound" -Program "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe" -Direction Inbound -Action Block
+New-NetFirewallRule -DisplayName "Disable MSN Services" -Program "%SystemRoot%\System32\msnmsgr.exe" -Direction Inbound -Action Block
+
+# Disable OneDrive on Startup
+Stop-Process -Name OneDrive -Force
+Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run" -Name "OneDrive" -Value ""
+
+# Turn off AutoPlay
+Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\AutoplayHandlers" -Name "DisableAutoplay" -Value 1
+
+# Enable screensaver with 10 min timeout
+Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "ScreenSaveActive" -Value 1
+Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "ScreenSaveTimeOut" -Value 600
+
+Write-Output "CyberPatriot Windows Checklist applied successfully."
         </pre>
       </section>
     </main>

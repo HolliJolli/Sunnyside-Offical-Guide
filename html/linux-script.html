@@ -27,18 +27,234 @@
       </nav>
 
       <section class="script">
-        <!-- Include Linux script here -->
         <pre>
-# Sample Script for Linux Ubuntu
 #!/bin/bash
-echo "Disabling unnecessary services..."
-# Add more script content here
+
+# Run this script as sudo
+
+# List of prohibited software
+prohibited_software=("ophcrack" "wireshark" "nmap" "netcat" "tcpdump" "aircrack-ng")
+log_file=~/Desktop/logs/script.log
+
+# Function to log messages with different levels
+log() {
+    local level="$1"
+    shift
+    echo "[$level] $1" | tee -a "$log_file"
+}
+
+# Function to check the success of the last command
+check_command() {
+    if [ $? -ne 0 ]; then
+        log "ERROR" "Command failed: $1"
+        exit 1
+    fi
+}
+
+# Function to display a spinner while a command is running
+spin() {
+    local pid=$1
+    local delay=0.1
+    local spinchars="/-\\|"
+    local i=0
+
+    while ps -p $pid > /dev/null; do
+        local temp=${spinchars:i++%${#spinchars}:1}
+        echo -ne "\r$temp" # Print the spinner character
+        sleep $delay
+    done
+    echo -ne "\r" # Clear the spinner
+}
+
+# Function to enable automatic updates
+enable_automatic_updates() {
+    log "INFO" "Enabling automatic security updates..."
+    apt-get install -y unattended-upgrades >> "$log_file" 2>&1 &
+    spin $!
+    check_command "apt-get install unattended-upgrades"
+}
+
+# Function to disable guest login and hide user lists for LightDM
+configure_lightdm_security() {
+    log "INFO" "Configuring LightDM security settings..."
+    if [ -f /etc/lightdm/lightdm.conf ]; then
+        echo -e "allow-guest=false\ngreeter-hide-users=true\nautologin-user=none" | tee -a /etc/lightdm/lightdm.conf
+        log "INFO" "Guest login disabled and user list hidden."
+    else
+        log "INFO" "LightDM configuration file not found. Skipping."
+    fi
+}
+
+# Function to set password policies in /etc/login.defs
+configure_password_policy() {
+    log "INFO" "Setting password aging policies..."
+    sed -i 's/^PASS_MAX_DAYS.*/PASS_MAX_DAYS 90/' /etc/login.defs
+    sed -i 's/^PASS_MIN_DAYS.*/PASS_MIN_DAYS 10/' /etc/login.defs
+    sed -i 's/^PASS_WARN_AGE.*/PASS_WARN_AGE 7/' /etc/login.defs
+    log "INFO" "Password policies set."
+}
+
+# Function to secure SSH configurations
+secure_ssh() {
+    log "INFO" "Securing SSH settings..."
+    sed -i 's/#PermitRootLogin.*/PermitRootLogin no/' /etc/ssh/sshd_config
+    echo -e "\nProtocol 2\nPasswordAuthentication yes\nPermitEmptyPasswords no\nX11Forwarding no" | tee -a /etc/ssh/sshd_config
+    systemctl restart ssh
+    log "INFO" "SSH security settings applied."
+}
+
+# Function to check for updates and upgrade
+check_and_upgrade() {
+    log "INFO" "=== Checking for updates ==="
+    apt update >> "$log_file" 2>&1 &
+    spin $!
+    check_command "apt update"
+
+    if [ "$(apt list --upgradable 2>/dev/null | grep -c upgradable)" -gt 0 ]; then
+        read -p "Upgradable packages found. Do you want to upgrade? (y/n): " choice
+        if [[ "$choice" == "y" ]]; then
+            log "INFO" "Upgrading packages..."
+            apt upgrade -y >> "$log_file" 2>&1 &
+            spin $!
+            check_command "apt upgrade"
+            log "INFO" "Performing distribution upgrade..."
+            apt dist-upgrade -y >> "$log_file" 2>&1 &
+            spin $!
+            check_command "apt dist-upgrade"
+        else
+            log "INFO" "Upgrade skipped by user."
+        fi
+    else
+        log "INFO" "No updates available."
+    fi
+    log "INFO" "=== End of update check ==="
+}
+
+# Function to check and remove prohibited software
+check_and_remove() {
+    log "INFO" "=== Checking for prohibited software ==="
+    for software in "${prohibited_software[@]}"; do
+        if dpkg -l | grep -q "$software"; then
+            read -p "Removing prohibited software: $software. Proceed? (y/n): " choice
+            if [[ "$choice" == "y" ]]; then
+                log "INFO" "Removing $software..."
+                apt remove -y "$software" >> "$log_file" 2>&1 &
+                spin $!
+                check_command "apt remove $software"
+            else
+                log "INFO" "$software removal skipped by user."
+            fi
+        else
+            log "INFO" "$software is not installed."
+        fi
+    done
+    log "INFO" "=== End of prohibited software check ==="
+}
+
+# Install and enable UFW with default deny and specific allows
+install_and_enable_ufw() {
+    log "INFO" "=== Installing and enabling UFW ==="
+    if ! command -v ufw >/dev/null 2>&1; then
+        log "INFO" "UFW is not installed. Installing UFW..."
+        apt update && apt install -y ufw >> "$log_file" 2>&1 &
+        spin $!
+        check_command "apt install ufw"
+    fi
+
+    log "INFO" "Configuring UFW..."
+    ufw default deny incoming >> "$log_file" 2>&1 &
+    spin $!
+    check_command "ufw default deny incoming"
+    
+    ufw default allow outgoing >> "$log_file" 2>&1 &
+    spin $!
+    check_command "ufw default allow outgoing"
+
+    # Allow specific services
+    for service in ssh http https; do
+        log "INFO" "Allowing $service..."
+        ufw allow "$service" >> "$log_file" 2>&1 &
+        spin $!
+        check_command "ufw allow $service"
+    done
+
+    log "INFO" "Enabling UFW..."
+    ufw enable >> "$log_file" 2>&1 &
+    spin $!
+    check_command "ufw enable"
+    log "INFO" "=== End of UFW setup ==="
+}
+
+# Function to install and configure ClamAV
+install_and_configure_clamav() {
+    log "INFO" "=== Installing and configuring ClamAV ==="
+    if ! command -v clamscan >/dev/null 2>&1; then
+        log "INFO" "ClamAV is not installed. Installing ClamAV..."
+        apt update && apt install -y clamav >> "$log_file" 2>&1 &
+        spin $!
+        check_command "apt install clamav"
+    fi
+
+    log "INFO" "Updating ClamAV database..."
+    freshclam >> "$log_file" 2>&1 &
+    spin $!
+    check_command "freshclam"
+}
+
+# Function to scan for viruses
+scan_for_viruses() {
+    log "INFO" "=== Starting virus scan ==="
+    install_and_configure_clamav
+    clamscan --recursive /path/to/directory >> "$log_file" 2>&1 &
+    spin $!
+    check_command "clamscan"
+    log "INFO" "Virus scan completed. Check log for details."
+}
+
+# Function to install and configure rkhunter
+install_and_configure_rkhunter() {
+    log "INFO" "=== Installing and configuring rkhunter ==="
+    if ! command -v rkhunter >/dev/null 2>&1; then
+        log "INFO" "rkhunter is not installed. Installing rkhunter..."
+        apt update && apt install -y rkhunter >> "$log_file" 2>&1 &
+        spin $!
+        check_command "apt install rkhunter"
+    fi
+
+    log "INFO" "Updating rkhunter database..."
+    rkhunter --update >> "$log_file" 2>&1 &
+    spin $!
+    check_command "rkhunter --update"
+}
+
+# Function to check for rootkits
+check_for_rootkits() {
+    log "INFO" "=== Checking for rootkits ==="
+    install_and_configure_rkhunter
+    rkhunter --check >> "$log_file" 2>&1 &
+    spin $!
+    check_command "rkhunter --check"
+    log "INFO" "Rootkit check completed. Check log for details."
+}
+
+# Main script execution
+log "INFO" "=== Starting script execution ==="
+enable_automatic_updates
+configure_lightdm_security
+configure_password_policy
+secure_ssh
+check_and_upgrade
+check_and_remove
+install_and_enable_ufw
+scan_for_viruses
+check_for_rootkits
+log "INFO" "=== Script execution completed ==="
         </pre>
       </section>
     </main>
 
     <footer>
-      <p>&copy; 2024 Sunnyside Official Guide</p>
+      <p>© 2024 Your Company Name. All rights reserved.</p>
     </footer>
   </body>
 </html>

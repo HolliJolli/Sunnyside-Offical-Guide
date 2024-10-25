@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Windows 10 Guide</title>
     <link rel="stylesheet" href="../styles/styles.css" />
+    <style>
+      .grayed-out {
+        color: #888;
+      }
+    </style>
   </head>
   <body>
     <header>
@@ -37,45 +42,132 @@
           environment.
         </p>
         <p>
-          The checklist addresses key security practices, including system
-          configuration, user account management, and regular updates. Each step
-          is crafted to fortify our systems against potential threats, ensuring
-          a robust and secure working environment for our team.
-        </p>
-        <p>Key areas covered in this guide include:</p>
-        <ul>
-          <li>
-            <strong>User Account Control (UAC):</strong> Instructions for
-            configuring UAC settings to prevent unauthorized changes to our
-            development systems.
-          </li>
-          <li>
-            <strong>Windows Defender:</strong> Guidance on enabling and
-            optimizing Windows Defender for comprehensive real-time protection
-            against malware and viruses.
-          </li>
-          <li>
-            <strong>Firewall Configuration:</strong> Strategies for configuring
-            the Windows Firewall to effectively manage incoming and outgoing
-            network traffic relevant to our projects.
-          </li>
-          <li>
-            <strong>Account Security Policies:</strong> Recommendations for
-            implementing strong password policies and account lockout settings
-            to enhance user account security.
-          </li>
-          <li>
-            <strong>Regular System Updates:</strong> Steps to enable automatic
-            updates, ensuring our systems remain current with the latest
-            security patches and enhancements.
-          </li>
-        </ul>
-        <p>
           By following this structured checklist, we can ensure that our Windows
           10 systems are thoroughly secured. It is essential for our team to
           adhere to these guidelines to achieve optimal security and maintain a
           reliable development environment.
         </p>
+
+        <!-- Windows 10 Security Checklist -->
+        <section id="windows10-checklist">
+          <h2>Windows 10 Security Checklist</h2>
+
+          <h3>First Steps</h3>
+          <ul>
+            <li>Discuss README together and identify critical tasks.</li>
+            <li>
+              Install Service Packs if available, using WSUS Offline Updater.
+            </li>
+            <li>
+              Download necessary programs: MalwareBytes, BitDefender, CCleaner,
+              IOBitUninstaller, MSBA, ProcessExplorer, Wireshark.
+            </li>
+          </ul>
+
+          <h3>Password Policy</h3>
+          <ul>
+            <li class="grayed-out">Enforce password history: 24</li>
+            <li class="grayed-out">Maximum password age: 60 days</li>
+            <li class="grayed-out">Minimum password age: 1 day</li>
+            <li class="grayed-out">Minimum password length: 10 characters</li>
+            <li class="grayed-out">
+              Password must meet complexity requirements: Enabled
+            </li>
+            <li class="grayed-out">
+              Store password using reversible encryption: Disabled
+            </li>
+          </ul>
+
+          <h3>Lockout Policy</h3>
+          <ul>
+            <li class="grayed-out">Account lockout duration: 30 minutes</li>
+            <li class="grayed-out">Account lockout threshold: 10 attempts</li>
+            <li class="grayed-out">
+              Reset account lockout counter after: 30 minutes
+            </li>
+          </ul>
+
+          <h3>User and Group Settings</h3>
+          <ul>
+            <li>
+              Set “User must change password at next logon” for all users.
+            </li>
+            <li>Disable all unauthorized user accounts.</li>
+            <li>
+              Restrict 'Administrators' and 'Guests' groups to authorized users
+              only.
+            </li>
+          </ul>
+
+          <h3>Network and Internet Settings</h3>
+          <ul>
+            <li>
+              Disable Wi-Fi Sense features to prevent automatic connections to
+              open hotspots.
+            </li>
+            <li class="grayed-out">
+              Turn UAC to max and disable IPv6 in adapter settings.
+            </li>
+          </ul>
+
+          <h3>Windows Services</h3>
+          <ul>
+            <li>
+              Disable services like UPnP Device Host, Telnet, and Remote
+              Registry.
+            </li>
+            <li>
+              Ensure critical services like Windows Event Collector are running.
+            </li>
+          </ul>
+
+          <h3>Firewall Configuration</h3>
+          <ul>
+            <li class="grayed-out">
+              Disable inbound access for Microsoft Edge, MSN apps, and Xbox.
+            </li>
+          </ul>
+
+          <h3>Security Policies</h3>
+          <ul>
+            <li class="grayed-out">Disable SMB v1 under Windows Features.</li>
+            <li>Only share ADMIN$, C$, and IPC$ unless otherwise specified.</li>
+          </ul>
+
+          <h3>System Configuration</h3>
+          <ul>
+            <li class="grayed-out">
+              Turn off AutoPlay and disable OneDrive on Startup.
+            </li>
+            <li class="grayed-out">
+              Enable screensaver timeout and configure screensaver security.
+            </li>
+          </ul>
+
+          <h3>Audit and Logging</h3>
+          <ul>
+            <li class="grayed-out">
+              Enable auditing for success/failure for critical logon events.
+            </li>
+          </ul>
+
+          <h3>Local Security Policies</h3>
+          <ul>
+            <li>
+              Apply settings to enforce user security such as disabling guest
+              accounts and enforcing password complexity.
+            </li>
+            <li>
+              Restrict NTLM traffic and configure network access security as
+              specified.
+            </li>
+          </ul>
+
+          <p>
+            For more details on each step, refer to the README or consult your
+            cybersecurity team.
+          </p>
+        </section>
       </section>
     </main>
 
